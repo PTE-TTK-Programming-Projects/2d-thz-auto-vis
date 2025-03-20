@@ -1,9 +1,11 @@
 #pragma once
 
-#include <iostream>
 #include <QSerialPort>
 #include <QtWidgets>
+#include <iostream>
 #include <string>
+
+#define VIRTUAL
 
 class ZaberDevice : public QSerialPort {
   Q_OBJECT;
@@ -26,4 +28,17 @@ signals:
   void motorBusy();
   void motorSent(std::string *msg);
   void motorIDed(int ID);
+
+public:
+#ifdef VIRTUAL
+  qint64 write(const char *data);
+  QByteArray readAll();
+
+private:
+  std::string *humbukBuffer;
+  QTimer *delay;
+
+private slots:
+  void humbukStop();
+#endif
 };

@@ -18,4 +18,4 @@ LIBS += -L/opt/picoscope/lib -lps5000a -lpicoipp
 
 # Input
 HEADERS += scopewindow.h scope.h hostwindow.h scope_data_line.h zabermotor.h zaberwindow.h meascontrolwidget.h
-SOURCES += scopewindow.cpp main.cpp scope.cpp hostwindow.cpp scope_data_line.cpp zabermotor.cpp zaberwindow.cpp meascontrolwidget.cpp
+SOURCES += scopewindow.cpp main.cpp scope.cpp hostwindow.cpp scope_data_line.cpp virt_zabermotor.cpp zaberwindow.cpp meascontrolwidget.cpp
