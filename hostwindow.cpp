@@ -28,6 +28,10 @@ HostWindow::HostWindow(QWidget *parent) : QWidget(parent) {
   this->setWindowTitle("THz auto visualizer by Gergő Illés");
   instrumentPanel->setWindowTitle(
       "Advanced Instrument Controls by Gergő Illés");
+#ifdef VIRTUAL
+  connect(zaberWin->motor, &ZaberDevice::sentToPosition, scopeWin->scope,
+          &PicoScope::motorPos);
+#endif
 }
 
 void HostWindow::visChanged(bool isChecked) {
@@ -41,7 +45,8 @@ void HostWindow::visChanged(bool isChecked) {
 void HostWindow::controlHidden() { QCoreApplication::exit(); }
 
 void HostWindow::start(double pos) {
-  if (!(scopeWin->isLive())) { // do not run measurement loop when scope is in live mode
+  if (!(scopeWin->isLive())) { // do not run measurement loop when scope is in
+                               // live mode
     connect(zaberWin, &ZaberWindow::motorReady, scopeWin,
             &ScopeWindow::extMeasure);
     connect(scopeWin, &ScopeWindow::MEASUREMENT_TYPE, conWin,

@@ -40,5 +40,8 @@ private:
 
 private slots:
   void humbukStop();
+
+signals:
+  void sentToPosition(int pos);
 #endif
 };

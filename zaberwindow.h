@@ -11,9 +11,14 @@ class ZaberWindow : public QFrame {
 
 public:
   ZaberWindow(QWidget *parent = nullptr);
+#ifdef VIRTUAL
+  ZaberDevice *motor;
+#endif
 
 private:
+#ifndef VIRTUAL
   ZaberDevice *motor;
+#endif
   QPushButton *connectButton, *homeButton, *moveButton;
   QComboBox *selectBox, *unitbox;
   QLineEdit *manualMsg, *movePos;

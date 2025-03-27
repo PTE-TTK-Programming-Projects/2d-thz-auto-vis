@@ -4,6 +4,8 @@
 #include <ps5000aApi.h>
 #include <string>
 
+#define VIRTUAL
+
 class PicoScope : public QObject {
   Q_OBJECT;
 
@@ -21,8 +23,7 @@ private:
   int32_t *bufferLength;
   int16_t *avgCounter, *avgRqst;
   uint32_t *noOfSamples;
-  static void readReady(int16_t handle, PICO_STATUS status,
-                            void *pParameter);
+  static void readReady(int16_t handle, PICO_STATUS status, void *pParameter);
   QTimer *statusTimer;
 private slots:
   void retrieveData();
@@ -38,5 +39,13 @@ signals:
   void sendStatus(std::string status);
   void finishSignal();
   void sendMeasurement(int32_t *bufferLength, int16_t *buffer);
-};
 
+#ifdef VIRTUAL
+private:
+  int *motorPosValue = new int(0);
+private slots:
+  void virtualRequest();
+public slots:
+  void motorPos(int pos);
+#endif
+};

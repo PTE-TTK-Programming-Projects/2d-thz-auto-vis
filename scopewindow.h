@@ -11,6 +11,13 @@ class ScopeWindow : public QFrame {
 public:
   ScopeWindow(QWidget *parent = nullptr);
   bool isLive();
+#ifdef VIRTUAL
+  PicoScope *scope;
+#endif
+private:
+#ifndef VIRTUAL
+  PicoScope *scope;
+#endif
 
 private slots:
   void showStatus(std::string status);
@@ -33,7 +40,6 @@ private:
   QPushButton *button, *measurebutton, *liveButton, *homeButton;
   QLineEdit *status, *avgRequest;
   QLabel *avgRequestLabel;
-  PicoScope *scope;
   QChartView *chartView;
   QChart *chart;
   ScopeDataLine *avgLine, *ptpLine;

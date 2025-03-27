@@ -1,6 +1,9 @@
 #include "./zabermotor.h"
 #include "qtimer.h"
+#include <cstddef>
 #include <future>
+#include <ostream>
+#include <sstream>
 bool contains(std::string base, std::string sub);
 
 ZaberDevice::ZaberDevice() : QSerialPort() {
@@ -46,6 +49,11 @@ void ZaberDevice::readSerial() {
 
 void ZaberDevice::sendToMotor(std::string message) {
   this->write((message + "\r\n").c_str());
+  if (contains(message, "/move abs")) {
+    int pos;
+    pos = stoi(message.substr(10));
+    emit sentToPosition(pos);
+  }
 }
 
 qint64 ZaberDevice::write(const char *data) {
