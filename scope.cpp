@@ -3,7 +3,7 @@
 PicoScope::PicoScope() : QObject() {
   timeBase = new uint32_t(34);
   statusTimer = new QTimer;
-  statusTimer->setInterval(100);
+  statusTimer->setInterval(50);
   ready = new int16_t;
   divisor = new int16_t(100);
   handle = new int16_t;

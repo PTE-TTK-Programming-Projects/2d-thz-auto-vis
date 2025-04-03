@@ -10,7 +10,7 @@ ZaberDevice::ZaberDevice() : QSerialPort() {
 
   humbukBuffer = new std::string();
   delay = new QTimer();
-  delay->setInterval(250);
+  delay->setInterval(60);
 
   buffer = new std::string("");
   readTimer = new QTimer();
