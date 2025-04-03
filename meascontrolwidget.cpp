@@ -3,14 +3,26 @@
 MeasureControlWindow::MeasureControlWindow(QWidget *parent) : QFrame(parent) {
   initDefaultValues();
   QVBoxLayout *layout = new QVBoxLayout();
+  QVBoxLayout *xlayout = new QVBoxLayout();
+  QVBoxLayout *ylayout = new QVBoxLayout();
+  QHBoxLayout *merged = new QHBoxLayout();
   layout->addWidget(resetZoom);
   layout->addWidget(showInstrumentControls);
-  layout->addWidget(start);
-  layout->addWidget(startpos);
-  layout->addWidget(step);
-  layout->addWidget(stepsize);
-  layout->addWidget(stop);
-  layout->addWidget(endpos);
+  xlayout->addWidget(xStart);
+  xlayout->addWidget(xStartpos);
+  xlayout->addWidget(xStep);
+  xlayout->addWidget(xStepsize);
+  xlayout->addWidget(xStop);
+  xlayout->addWidget(xEndpos);
+  ylayout->addWidget(yStart);
+  ylayout->addWidget(yStartpos);
+  ylayout->addWidget(yStep);
+  ylayout->addWidget(yStepsize);
+  ylayout->addWidget(yStop);
+  ylayout->addWidget(yEndpos);
+  merged->addLayout(xlayout);
+  merged->addLayout(ylayout);
+  layout->addLayout(merged);
   layout->addWidget(unitSelector);
   layout->addWidget(startMeasure);
   layout->addWidget(stopButton);
@@ -29,16 +41,22 @@ MeasureControlWindow::MeasureControlWindow(QWidget *parent) : QFrame(parent) {
 }
 
 void MeasureControlWindow::initDefaultValues() {
-  startpos = new QLineEdit();
-  endpos = new QLineEdit();
-  stepsize = new QLineEdit();
+  xStartpos = new QLineEdit();
+  xEndpos = new QLineEdit();
+  xStepsize = new QLineEdit();
+  yStartpos = new QLineEdit();
+  yEndpos = new QLineEdit();
+  yStepsize = new QLineEdit();
   unitSelector = new QComboBox();
   unitSelector->addItems(QList<QString>({QString("mm"), QString("um")}));
   showInstrumentControls = new QPushButton("Show instrument controls");
   showInstrumentControls->setCheckable(true);
-  start = new QLabel("Start Position");
-  step = new QLabel("Step size");
-  stop = new QLabel("End postition");
+  xStart = new QLabel("Start Position");
+  xStep = new QLabel("Step size");
+  xStop = new QLabel("End postition");
+  yStart = new QLabel("Start Position");
+  yStep = new QLabel("Step size");
+  yStop = new QLabel("End postition");
   parameterFrame = new QFrame();
   visualizationFrame = new QFrame();
   chart = new QChart();
@@ -51,14 +69,14 @@ void MeasureControlWindow::initDefaultValues() {
   parameterFrame->setFrameShadow(QFrame::Raised);
   parameterFrame->setLineWidth(3);
   parameterFrame->setMidLineWidth(3);
-  parameterFrame->setFixedWidth(200);
+  parameterFrame->setFixedWidth(300);
   visualizationFrame->setFrameShape(QFrame::StyledPanel);
   visualizationFrame->setFrameShadow(QFrame::Raised);
   visualizationFrame->setLineWidth(3);
   visualizationFrame->setMidLineWidth(3);
   startMeasure = new QPushButton("Start measurement");
-  coords = new std::vector<double>();
-  measVals = new std::vector<double>();
+  xCoords = new std::vector<double>();
+  yCoords = new std::vector<double>();
   stopButton = new QPushButton("Stop and Reset");
   resetZoom = new QPushButton("Reset Zoom");
   saveButton = new QPushButton("Save data");
@@ -95,43 +113,70 @@ void MeasureControlWindow::hideEvent(QHideEvent *event) { event->ignore(); }
 void MeasureControlWindow::closeEvent(QCloseEvent *event) { event->ignore(); }
 
 void MeasureControlWindow::startMeasProc() {
-  double start, step, end, currentCoord;
-  start = startpos->text().toDouble();
-  step = stepsize->text().toDouble();
-  end = endpos->text().toDouble();
-  coords->clear();
-  measVals->clear();
-  currentCoord = start;
-  while (currentCoord < end) {
-    coords->push_back(currentCoord);
-    currentCoord += step;
+  double xStart, xStep, xEnd, xCurrentCoord;
+  double yStart, yStep, yEnd, yCurrentCoord;
+
+  xStart = xStartpos->text().toDouble();
+  xStep = xStepsize->text().toDouble();
+  xEnd = xEndpos->text().toDouble();
+  xCoords->clear();
+  xCurrentCoord = xStart;
+  while (xCurrentCoord < xEnd) {
+    xCoords->push_back(xCurrentCoord);
+    xCurrentCoord += xStep;
   }
-  coords->push_back(end);
-  emit requestStart(coords->at(0));
+  xCoords->push_back(xEnd);
+
+  yStart = yStartpos->text().toDouble();
+  yStep = yStepsize->text().toDouble();
+  yEnd = yEndpos->text().toDouble();
+  yCoords->clear();
+  yCurrentCoord = yStart;
+  while (yCurrentCoord < yEnd) {
+    yCoords->push_back(yCurrentCoord);
+    yCurrentCoord += yStep;
+  }
+  yCoords->push_back(yEnd);
+  measVals = new Matrix(xCoords->size(), yCoords->size());
+  i = 0, j = 0;
+
+  emit requestStart(xCoords->at(0), yCoords->at(0));
 }
 
 void MeasureControlWindow::recMeasPoint(double value) {
-  measVals->push_back(value);
+  measVals->at(i, j) = value;
   plotResults();
-  if (coords->size() > measVals->size()) {
-    emit requestNextStep(coords->at(measVals->size()));
+
+  if (!(i == measVals->n() - 1 && j == measVals->m() - 1)) {
+    if (i == measVals->n() - 1) {
+      i = 0;
+      j++;
+    } else {
+      i++;
+    }
+    emit requestNextStep(xCoords->at(i),yCoords->at(j));
   } else {
     emit requestStop();
   }
+  //  if (xCoords->size() > size_t(measVals->n())) {
+  //    emit requestNextStep(xCoords->at(measVals->size()));
+  //  } else {
+  //    emit requestStop();
+  //  }
 }
 
 void MeasureControlWindow::plotResults() {
-  chart->removeAllSeries();
-  QLineSeries *line = new QLineSeries();
-  for (size_t i = 0; i < measVals->size(); i++) {
-    line->append(coords->at(i), measVals->at(i));
-  }
-  chart->addSeries(line);
-  chart->createDefaultAxes();
-  chart->axisX()->setTitleText("Position (m)");
-  chart->axisY()->setTitleText("Voltage (V)");
-  chart->legend()->hide();
-  chart->update();
+  // chart->removeAllSeries();
+  // QLineSeries *line = new QLineSeries();
+  // for (size_t i = 0; i < measVals->size(); i++) {
+  //   line->append(xCoords->at(i), measVals->at(i));
+  // }
+  // chart->addSeries(line);
+  // chart->createDefaultAxes();
+  // chart->axisX()->setTitleText("Position (m)");
+  // chart->axisY()->setTitleText("Voltage (V)");
+  // chart->legend()->hide();
+  // chart->update();
 }
 
 void MeasureControlWindow::stopMeasProc() { emit requestStop(); }

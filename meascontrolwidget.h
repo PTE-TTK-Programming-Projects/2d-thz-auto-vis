@@ -1,8 +1,9 @@
 #pragma once
+#include "matrix.h"
 #include <QtCharts>
 #include <QtWidgets>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 class MeasureControlWindow : public QFrame {
   Q_OBJECT;
@@ -15,14 +16,24 @@ private:
   void setupConnections();
   void hideEvent(QHideEvent *event);
   void closeEvent(QCloseEvent *event);
-  QLineEdit *startpos, *endpos, *stepsize, *saveName;
+
+  int i=0, j=0;
+
+  QLineEdit *xStartpos, *xEndpos, *xStepsize, *saveName;
+  QLineEdit *yStartpos, *yEndpos, *yStepsize;
+
   QComboBox *unitSelector;
-  QPushButton *showInstrumentControls, *startMeasure, *stopButton, *resetZoom, *saveButton;
-  QLabel *start, *step, *stop;
+  QPushButton *showInstrumentControls, *startMeasure, *stopButton, *resetZoom,
+      *saveButton;
+
+  QLabel *xStart, *xStep, *xStop;
+  QLabel *yStart, *yStep, *yStop;
+
   QFrame *parameterFrame, *visualizationFrame;
   QChart *chart;
   QChartView *chartView;
-  std::vector<double> *coords, *measVals;
+  std::vector<double> *xCoords, *yCoords;
+  Matrix *measVals;
   void plotResults();
 private slots:
   void sendCurrentIndex(int index);
@@ -40,7 +51,7 @@ signals:
   void unitSelectorIndex(int index);
   void instrumentVisibility(bool isChecked);
   void controlsHidden();
-  void requestStart(double pos);
-  void requestNextStep(double pos);
+  void requestStart(double xPos, double yPos);
+  void requestNextStep(double xPos, double yPos);
   void requestStop();
 };

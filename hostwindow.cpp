@@ -2,21 +2,23 @@
 
 HostWindow::HostWindow(QWidget *parent) : QWidget(parent) {
   scopeWin = new ScopeWindow();
-  zaberWin = new ZaberWindow();
+  xZaberWin = new ZaberWindow();
+  yZaberWin = new ZaberWindow();
   conWin = new MeasureControlWindow();
   instrumentPanel = new QFrame();
   QHBoxLayout *instLayout = new QHBoxLayout();
   instLayout->addWidget(scopeWin);
-  instLayout->addWidget(zaberWin);
+  instLayout->addWidget(xZaberWin);
+  instLayout->addWidget(yZaberWin);
   instrumentPanel->setLayout(instLayout);
   QGridLayout *layout = new QGridLayout();
   layout->addWidget(conWin);
   instrumentPanel->setWindowFlags(Qt::Window | Qt::WindowMaximizeButtonHint);
   this->setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint);
   setLayout(layout);
-  connect(conWin, &MeasureControlWindow::unitSelectorIndex, zaberWin,
+  connect(conWin, &MeasureControlWindow::unitSelectorIndex, xZaberWin,
           &ZaberWindow::externalUnitChange);
-  connect(zaberWin, &ZaberWindow::sendUnitIndex, conWin,
+  connect(xZaberWin, &ZaberWindow::sendUnitIndex, conWin,
           &MeasureControlWindow::recUnitIndex);
   connect(conWin, &MeasureControlWindow::instrumentVisibility, this,
           &HostWindow::visChanged);
@@ -29,8 +31,10 @@ HostWindow::HostWindow(QWidget *parent) : QWidget(parent) {
   instrumentPanel->setWindowTitle(
       "Advanced Instrument Controls by Gergő Illés");
 #ifdef VIRTUAL
-  connect(zaberWin->motor, &ZaberDevice::sentToPosition, scopeWin->scope,
+  connect(xZaberWin->motor, &ZaberDevice::sentToPosition, scopeWin->scope,
           &PicoScope::motorPos);
+//  connect(yZaberWin->motor, &ZaberDevice::sentToPosition, scopeWin->scope,
+//          &PicoScope::motorPos);
 #endif
 }
 
@@ -47,21 +51,21 @@ void HostWindow::controlHidden() { QCoreApplication::exit(); }
 void HostWindow::start(double pos) {
   if (!(scopeWin->isLive())) { // do not run measurement loop when scope is in
                                // live mode
-    connect(zaberWin, &ZaberWindow::motorReady, scopeWin,
+    connect(xZaberWin, &ZaberWindow::motorReady, scopeWin,
             &ScopeWindow::extMeasure);
     connect(scopeWin, &ScopeWindow::MEASUREMENT_TYPE, conWin,
             &MeasureControlWindow::recMeasPoint);
-    connect(conWin, &MeasureControlWindow::requestNextStep, zaberWin,
+    connect(conWin, &MeasureControlWindow::requestNextStep, xZaberWin,
             &ZaberWindow::moveToUnitPos);
-    zaberWin->moveToUnitPos(pos);
+    xZaberWin->moveToUnitPos(pos);
   }
 }
 
 void HostWindow::stop() {
-  disconnect(zaberWin, &ZaberWindow::motorReady, scopeWin,
+  disconnect(xZaberWin, &ZaberWindow::motorReady, scopeWin,
              &ScopeWindow::extMeasure);
   disconnect(scopeWin, &ScopeWindow::MEASUREMENT_TYPE, conWin,
              &MeasureControlWindow::recMeasPoint);
-  disconnect(conWin, &MeasureControlWindow::requestNextStep, zaberWin,
+  disconnect(conWin, &MeasureControlWindow::requestNextStep, xZaberWin,
              &ZaberWindow::moveToUnitPos);
 }
