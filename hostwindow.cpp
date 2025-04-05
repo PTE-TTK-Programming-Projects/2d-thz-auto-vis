@@ -1,4 +1,5 @@
 #include "./hostwindow.h"
+#include "semaphore.h"
 
 HostWindow::HostWindow(QWidget *parent) : QWidget(parent) {
   scopeWin = new ScopeWindow();
@@ -6,6 +7,7 @@ HostWindow::HostWindow(QWidget *parent) : QWidget(parent) {
   yZaberWin = new ZaberWindow();
   conWin = new MeasureControlWindow();
   instrumentPanel = new QFrame();
+  semaphore = new XYMotorSemaphore(xZaberWin, yZaberWin);
   QHBoxLayout *instLayout = new QHBoxLayout();
   instLayout->addWidget(scopeWin);
   instLayout->addWidget(xZaberWin);
@@ -27,6 +29,10 @@ HostWindow::HostWindow(QWidget *parent) : QWidget(parent) {
   connect(conWin, &MeasureControlWindow::requestStart, this,
           &HostWindow::start);
   connect(conWin, &MeasureControlWindow::requestStop, this, &HostWindow::stop);
+  connect(xZaberWin, &ZaberWindow::motorReady, semaphore,
+          &XYMotorSemaphore::xStop);
+  connect(yZaberWin, &ZaberWindow::motorReady, semaphore,
+          &XYMotorSemaphore::yStop);
   this->setWindowTitle("THz auto visualizer by Gergő Illés");
   instrumentPanel->setWindowTitle(
       "Advanced Instrument Controls by Gergő Illés");
@@ -48,24 +54,26 @@ void HostWindow::visChanged(bool isChecked) {
 
 void HostWindow::controlHidden() { QCoreApplication::exit(); }
 
-void HostWindow::start(double pos) {
+void HostWindow::start(double xPos, double yPos) {
   if (!(scopeWin->isLive())) { // do not run measurement loop when scope is in
                                // live mode
-    connect(xZaberWin, &ZaberWindow::motorReady, scopeWin,
+
+    connect(semaphore, &XYMotorSemaphore::allReady, scopeWin,
             &ScopeWindow::extMeasure);
     connect(scopeWin, &ScopeWindow::MEASUREMENT_TYPE, conWin,
             &MeasureControlWindow::recMeasPoint);
-    connect(conWin, &MeasureControlWindow::requestNextStep, xZaberWin,
-            &ZaberWindow::moveToUnitPos);
-    xZaberWin->moveToUnitPos(pos);
+    connect(conWin, &MeasureControlWindow::requestNextStep, semaphore,
+            &XYMotorSemaphore::requestNextStep);
+    xZaberWin->moveToUnitPos(xPos);
+    yZaberWin->moveToUnitPos(yPos);
   }
 }
 
 void HostWindow::stop() {
-  disconnect(xZaberWin, &ZaberWindow::motorReady, scopeWin,
-             &ScopeWindow::extMeasure);
+  disconnect(semaphore, &XYMotorSemaphore::allReady, scopeWin,
+          &ScopeWindow::extMeasure);
   disconnect(scopeWin, &ScopeWindow::MEASUREMENT_TYPE, conWin,
-             &MeasureControlWindow::recMeasPoint);
-  disconnect(conWin, &MeasureControlWindow::requestNextStep, xZaberWin,
-             &ZaberWindow::moveToUnitPos);
+          &MeasureControlWindow::recMeasPoint);
+  disconnect(conWin, &MeasureControlWindow::requestNextStep, semaphore,
+          &XYMotorSemaphore::requestNextStep);
 }

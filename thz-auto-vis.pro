@@ -6,8 +6,9 @@ TEMPLATE = app
 TARGET = thz-auto-vis
 INCLUDEPATH += . /opt/picoscope/include/libps5000a
 QT += widgets charts serialport
+LIBS += -lqcustomplot
 # LIBS += -L/opt/picoscope/lib -lps5000a -lpicoipp
-# CONFIG += debug # This is only needed when you want to attach a debugger
+CONFIG += debug # This is only needed when you want to attach a debugger
 
 # You can make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -17,5 +18,5 @@ QT += widgets charts serialport
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
-HEADERS += scopewindow.h scope.h hostwindow.h scope_data_line.h zabermotor.h zaberwindow.h meascontrolwidget.h
-SOURCES += scopewindow.cpp main.cpp virt_scope.cpp hostwindow.cpp scope_data_line.cpp virt_zabermotor.cpp zaberwindow.cpp meascontrolwidget.cpp
+HEADERS += scopewindow.h scope.h hostwindow.h scope_data_line.h zabermotor.h zaberwindow.h meascontrolwidget.h semaphore.h
+SOURCES += scopewindow.cpp main.cpp virt_scope.cpp hostwindow.cpp scope_data_line.cpp virt_zabermotor.cpp zaberwindow.cpp meascontrolwidget.cpp semaphore.cpp

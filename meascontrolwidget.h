@@ -1,4 +1,5 @@
 #pragma once
+#include <qcustomplot.h>
 #include "matrix.h"
 #include <QtCharts>
 #include <QtWidgets>
@@ -30,8 +31,10 @@ private:
   QLabel *yStart, *yStep, *yStop;
 
   QFrame *parameterFrame, *visualizationFrame;
-  QChart *chart;
-  QChartView *chartView;
+  // QChart *chart;
+  // QChartView *chartView;
+  QCustomPlot *customPlot;
+  QCPColorMap *colorMap;
   std::vector<double> *xCoords, *yCoords;
   Matrix *measVals;
   void plotResults();

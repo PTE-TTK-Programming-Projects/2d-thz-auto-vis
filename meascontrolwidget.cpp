@@ -1,4 +1,5 @@
 #include "./meascontrolwidget.h"
+#include <qcustomplot.h>
 
 MeasureControlWindow::MeasureControlWindow(QWidget *parent) : QFrame(parent) {
   initDefaultValues();
@@ -32,7 +33,7 @@ MeasureControlWindow::MeasureControlWindow(QWidget *parent) : QFrame(parent) {
   setupConnections();
   parameterFrame->setLayout(layout);
   QGridLayout *visLayout = new QGridLayout();
-  visLayout->addWidget(chartView);
+  visLayout->addWidget(customPlot);
   visualizationFrame->setLayout(visLayout);
   QHBoxLayout *measureLayout = new QHBoxLayout();
   measureLayout->addWidget(visualizationFrame);
@@ -59,12 +60,19 @@ void MeasureControlWindow::initDefaultValues() {
   yStop = new QLabel("End postition");
   parameterFrame = new QFrame();
   visualizationFrame = new QFrame();
-  chart = new QChart();
-  chartView = new QChartView(chart);
-  chart->layout()->setContentsMargins(0, 0, 0, 0);
-  chart->resize(640, 480);
-  chartView->setRubberBand(QChartView::RectangleRubberBand);
-  chartView->setRenderHint(QPainter::Antialiasing, true);
+  // chart = new QChart();
+  // chartView = new QChartView(chart);
+  // chart->layout()->setContentsMargins(0, 0, 0, 0);
+  // chart->resize(640, 480);
+  // chartView->setRubberBand(QChartView::RectangleRubberBand);
+  // chartView->setRenderHint(QPainter::Antialiasing, true);
+  customPlot = new QCustomPlot();
+  customPlot->setMinimumWidth(500);
+  customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+  customPlot->axisRect()->setupFullAxesBox(true);
+  customPlot->xAxis->setLabel("X Motor Position");
+  customPlot->yAxis->setLabel("Y Motor Position");
+  colorMap = new QCPColorMap(customPlot->xAxis, customPlot->yAxis);
   parameterFrame->setFrameShape(QFrame::StyledPanel);
   parameterFrame->setFrameShadow(QFrame::Raised);
   parameterFrame->setLineWidth(3);
@@ -139,7 +147,12 @@ void MeasureControlWindow::startMeasProc() {
   yCoords->push_back(yEnd);
   measVals = new Matrix(xCoords->size(), yCoords->size());
   i = 0, j = 0;
-
+  colorMap->data()->setSize(xCoords->size(), yCoords->size());
+  colorMap->data()->setRange(QCPRange(xCoords->front(), xCoords->back()),
+                             QCPRange(yCoords->front(), yCoords->back()));
+  colorMap->setGradient(QCPColorGradient::gpPolar);
+  colorMap->rescaleAxes();
+  colorMap->rescaleDataRange();
   emit requestStart(xCoords->at(0), yCoords->at(0));
 }
 
@@ -154,7 +167,7 @@ void MeasureControlWindow::recMeasPoint(double value) {
     } else {
       i++;
     }
-    emit requestNextStep(xCoords->at(i),yCoords->at(j));
+    emit requestNextStep(xCoords->at(i), yCoords->at(j));
   } else {
     emit requestStop();
   }
@@ -166,6 +179,9 @@ void MeasureControlWindow::recMeasPoint(double value) {
 }
 
 void MeasureControlWindow::plotResults() {
+  colorMap->data()->setCell(i, j, measVals->at(i, j));
+  colorMap->rescaleDataRange();
+  customPlot->replot();
   // chart->removeAllSeries();
   // QLineSeries *line = new QLineSeries();
   // for (size_t i = 0; i < measVals->size(); i++) {
@@ -181,19 +197,19 @@ void MeasureControlWindow::plotResults() {
 
 void MeasureControlWindow::stopMeasProc() { emit requestStop(); }
 
-void MeasureControlWindow::resetZoomSlot() { chart->zoomReset(); }
+void MeasureControlWindow::resetZoomSlot() { /* chart->zoomReset(); */ }
 
 void MeasureControlWindow::saveDataSlot() {
-  if (chart->series().isEmpty()) {
-    return;
-  } else {
-    std::ofstream dataFile;
-    dataFile.open(saveName->text().toStdString().c_str());
-    QLineSeries *series = qobject_cast<QLineSeries *>(chart->series().last());
-    QVector<QPointF> points = series->pointsVector();
-    for (int i = 0; i < points.size(); i++) {
-      dataFile << points.at(i).x() << ",\t" << points.at(i).y() << "\n";
-    }
-    dataFile.close();
-  }
+  // if (chart->series().isEmpty()) {
+  //   return;
+  // } else {
+  //   std::ofstream dataFile;
+  //   dataFile.open(saveName->text().toStdString().c_str());
+  //   QLineSeries *series = qobject_cast<QLineSeries
+  //   *>(chart->series().last()); QVector<QPointF> points =
+  //   series->pointsVector(); for (int i = 0; i < points.size(); i++) {
+  //     dataFile << points.at(i).x() << ",\t" << points.at(i).y() << "\n";
+  //   }
+  //   dataFile.close();
+  // }
 }
