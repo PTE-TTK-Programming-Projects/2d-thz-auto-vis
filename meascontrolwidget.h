@@ -1,10 +1,10 @@
 #pragma once
-#include <qcustomplot.h>
 #include "matrix.h"
 #include <QtCharts>
 #include <QtWidgets>
 #include <fstream>
 #include <iostream>
+#include <qcustomplot.h>
 
 class MeasureControlWindow : public QFrame {
   Q_OBJECT;
@@ -18,7 +18,7 @@ private:
   void hideEvent(QHideEvent *event);
   void closeEvent(QCloseEvent *event);
 
-  int i=0, j=0;
+  int i = 0, j = 0;
 
   QLineEdit *xStartpos, *xEndpos, *xStepsize, *saveName;
   QLineEdit *yStartpos, *yEndpos, *yStepsize;
@@ -35,6 +35,7 @@ private:
   // QChartView *chartView;
   QCustomPlot *customPlot;
   QCPColorMap *colorMap;
+  QCPColorGradient *gradient;
   std::vector<double> *xCoords, *yCoords;
   Matrix *measVals;
   void plotResults();

@@ -73,6 +73,13 @@ void MeasureControlWindow::initDefaultValues() {
   customPlot->xAxis->setLabel("X Motor Position");
   customPlot->yAxis->setLabel("Y Motor Position");
   colorMap = new QCPColorMap(customPlot->xAxis, customPlot->yAxis);
+  gradient = new QCPColorGradient();
+  gradient->setColorStopAt(0.0, QColor(0, 0, 0));
+  gradient->setColorStopAt(0.25, QColor(0, 64, 0));
+  gradient->setColorStopAt(0.50, QColor(0, 128, 0));
+  gradient->setColorStopAt(0.75, QColor(0, 192, 0));
+  gradient->setColorStopAt(1, QColor(0, 255, 0));
+  colorMap->setGradient(*gradient);
   parameterFrame->setFrameShape(QFrame::StyledPanel);
   parameterFrame->setFrameShadow(QFrame::Raised);
   parameterFrame->setLineWidth(3);
@@ -150,7 +157,6 @@ void MeasureControlWindow::startMeasProc() {
   colorMap->data()->setSize(xCoords->size(), yCoords->size());
   colorMap->data()->setRange(QCPRange(xCoords->front(), xCoords->back()),
                              QCPRange(yCoords->front(), yCoords->back()));
-  colorMap->setGradient(QCPColorGradient::gpPolar);
   colorMap->rescaleAxes();
   colorMap->rescaleDataRange();
   emit requestStart(xCoords->at(0), yCoords->at(0));
@@ -197,7 +203,10 @@ void MeasureControlWindow::plotResults() {
 
 void MeasureControlWindow::stopMeasProc() { emit requestStop(); }
 
-void MeasureControlWindow::resetZoomSlot() { /* chart->zoomReset(); */ }
+void MeasureControlWindow::resetZoomSlot() {
+  customPlot->rescaleAxes();
+  customPlot->replot();
+}
 
 void MeasureControlWindow::saveDataSlot() {
   // if (chart->series().isEmpty()) {
