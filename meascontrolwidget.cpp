@@ -8,6 +8,7 @@ MeasureControlWindow::MeasureControlWindow(QWidget *parent) : QFrame(parent) {
   QVBoxLayout *ylayout = new QVBoxLayout();
   QHBoxLayout *merged = new QHBoxLayout();
   layout->addWidget(resetZoom);
+  layout->addWidget(interpButton);
   layout->addWidget(showInstrumentControls);
   xlayout->addWidget(xStart);
   xlayout->addWidget(xStartpos);
@@ -80,6 +81,7 @@ void MeasureControlWindow::initDefaultValues() {
   gradient->setColorStopAt(0.75, QColor(0, 192, 0));
   gradient->setColorStopAt(1, QColor(0, 255, 0));
   colorMap->setGradient(*gradient);
+  colorMap->setInterpolate(false);
   parameterFrame->setFrameShape(QFrame::StyledPanel);
   parameterFrame->setFrameShadow(QFrame::Raised);
   parameterFrame->setLineWidth(3);
@@ -94,6 +96,8 @@ void MeasureControlWindow::initDefaultValues() {
   yCoords = new std::vector<double>();
   stopButton = new QPushButton("Stop and Reset");
   resetZoom = new QPushButton("Reset Zoom");
+  interpButton = new QPushButton("Interpolate");
+  interpButton->setCheckable(true);
   saveButton = new QPushButton("Save data");
   saveName = new QLineEdit();
 }
@@ -103,6 +107,8 @@ void MeasureControlWindow::setupConnections() {
           this, &MeasureControlWindow::sendCurrentIndex);
   connect(showInstrumentControls, &QPushButton::clicked, this,
           &MeasureControlWindow::showClicked);
+  connect(interpButton, &QPushButton::toggled, this,
+          &MeasureControlWindow::interpData);
   connect(startMeasure, &QPushButton::clicked, this,
           &MeasureControlWindow::startMeasProc);
   connect(stopButton, &QPushButton::clicked, this,
@@ -113,6 +119,10 @@ void MeasureControlWindow::setupConnections() {
           &MeasureControlWindow::saveDataSlot);
 }
 
+void MeasureControlWindow::interpData(bool interp){
+  colorMap->setInterpolate(interp);
+  customPlot->replot();
+}
 void MeasureControlWindow::sendCurrentIndex(int index) {
   emit unitSelectorIndex(index);
 }

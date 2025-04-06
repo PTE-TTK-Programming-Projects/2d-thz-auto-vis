@@ -3,7 +3,7 @@
 #include <cmath>
 PicoScope::PicoScope() : QObject() {
   statusTimer = new QTimer;
-  statusTimer->setInterval(50);
+  statusTimer->setInterval(5);
   status = new PICO_STATUS;
   bufferLength = new int32_t(2001);
   noOfSamples = new uint32_t(2001);
@@ -18,7 +18,8 @@ PicoScope::PicoScope() : QObject() {
   connect(this, &PicoScope::finishSignal, this, &PicoScope::retrieveData);
 }
 
-void PicoScope::motorPos(int pos) { *motorPosValue = pos; }
+void PicoScope::xmotorPos(int pos) { *xmotorPosValue = pos; }
+void PicoScope::ymotorPos(int pos) { *ymotorPosValue = pos; }
 void PicoScope::getStatus() { emit sendStatus("VIRTUAL_OK"); }
 
 void PicoScope::measure() {
@@ -32,15 +33,18 @@ void PicoScope::virtualRequest() {
   emit this->finishSignal();
 }
 
-double gaussian(double center, double width, int pos) {
-  double Pos = double(pos) / 1e4;
-  return exp(-pow(Pos - center, 2) / width / width) * cos(Pos / 2);
+double gaussian(double center, double width, int xpos, int ypos) {
+  double Pos = double(xpos) / 1e4;
+  double yPos = double(ypos) / 1e4;
+  return exp(-pow(Pos - center, 2) / (pow((yPos * 0.5), 2) + 20)) *
+         abs(cos((fmax(2,(-yPos) / 200 + 10)) * (Pos - 120) / 3.14));
 }
 
 void PicoScope::retrieveData() {
   // std::cout << "Virtual data retrieval started" << std::endl;
   for (int i = 0; i < *bufferLength; i++) {
-    bufferArray[i] = std::floor(gaussian(250, 25, *motorPosValue) * 25000);
+    bufferArray[i] =
+        std::floor(gaussian(120, 25, *xmotorPosValue, *ymotorPosValue) * 25000);
   }
   emit sendMeasurement(bufferLength, bufferArray);
 }

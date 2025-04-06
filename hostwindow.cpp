@@ -38,7 +38,9 @@ HostWindow::HostWindow(QWidget *parent) : QWidget(parent) {
       "Advanced Instrument Controls by Gergő Illés");
 #ifdef VIRTUAL
   connect(xZaberWin->motor, &ZaberDevice::sentToPosition, scopeWin->scope,
-          &PicoScope::motorPos);
+          &PicoScope::xmotorPos);
+  connect(yZaberWin->motor, &ZaberDevice::sentToPosition, scopeWin->scope,
+          &PicoScope::ymotorPos);
 //  connect(yZaberWin->motor, &ZaberDevice::sentToPosition, scopeWin->scope,
 //          &PicoScope::motorPos);
 #endif

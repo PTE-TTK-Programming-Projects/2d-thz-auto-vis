@@ -1,4 +1,5 @@
 #include "./zaberwindow.h"
+bool contains(std::string base, std::string sub);
 
 ZaberWindow::ZaberWindow(QWidget *parent) : QFrame(parent) {
   unitMultiplier = new double(1e-3);
@@ -80,8 +81,10 @@ void ZaberWindow::selectPort() {
 }
 
 void ZaberWindow::motorMsg(std::string *message) {
-  messageScrollback->insertItem(
-      0, message->substr(0, message->size() - 2).c_str());
+  if (!contains(*message, "IDLE")) {
+    messageScrollback->insertItem(
+        0, message->substr(0, message->size() - 2).c_str());
+  }
 }
 
 void ZaberWindow::motorID(int ID) {
@@ -148,3 +151,4 @@ void ZaberWindow::stpBWD() {
 }
 
 void ZaberWindow::relayMotorReady() { emit motorReady(); }
+

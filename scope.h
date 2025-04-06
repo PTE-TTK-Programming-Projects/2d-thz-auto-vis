@@ -42,10 +42,11 @@ signals:
 
 #ifdef VIRTUAL
 private:
-  int *motorPosValue = new int(0);
+  int *xmotorPosValue = new int(0), *ymotorPosValue = new int(0);
 private slots:
   void virtualRequest();
 public slots:
-  void motorPos(int pos);
+  void xmotorPos(int pos);
+  void ymotorPos(int pos);
 #endif
 };

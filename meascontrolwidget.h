@@ -24,7 +24,7 @@ private:
   QLineEdit *yStartpos, *yEndpos, *yStepsize;
 
   QComboBox *unitSelector;
-  QPushButton *showInstrumentControls, *startMeasure, *stopButton, *resetZoom,
+  QPushButton *showInstrumentControls, *startMeasure, *stopButton, *resetZoom, *interpButton,
       *saveButton;
 
   QLabel *xStart, *xStep, *xStop;
@@ -46,6 +46,7 @@ private slots:
   void stopMeasProc();
   void resetZoomSlot();
   void saveDataSlot();
+  void interpData(bool interp);
 
 public slots:
   void recUnitIndex(int index);
