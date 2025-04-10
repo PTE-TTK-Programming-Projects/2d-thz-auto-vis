@@ -18,6 +18,8 @@ HostWindow::HostWindow(QWidget *parent) : QWidget(parent) {
   instrumentPanel->setWindowFlags(Qt::Window | Qt::WindowMaximizeButtonHint);
   this->setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint);
   setLayout(layout);
+  connect(xZaberWin,&ZaberWindow::sendManualMsg, semaphore, &XYMotorSemaphore::xStart);
+  connect(yZaberWin,&ZaberWindow::sendManualMsg, semaphore,  &XYMotorSemaphore::yStart);
   connect(conWin, &MeasureControlWindow::unitSelectorIndex, xZaberWin,
           &ZaberWindow::externalUnitChange);
   connect(xZaberWin, &ZaberWindow::sendUnitIndex, conWin,
