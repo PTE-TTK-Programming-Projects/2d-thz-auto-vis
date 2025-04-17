@@ -10,11 +10,11 @@ ZaberDevice::ZaberDevice() : QSerialPort() {
 
   humbukBuffer = new std::string();
   delay = new QTimer();
-  delay->setInterval(5);
+  delay->setInterval(1);
 
   buffer = new std::string("");
   readTimer = new QTimer();
-  readTimer->setInterval(5);
+  readTimer->setInterval(1);
 
   connect(readTimer, &QTimer::timeout, this, &ZaberDevice::readSerial);
   connect(delay, &QTimer::timeout, this, &ZaberDevice::humbukStop);

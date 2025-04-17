@@ -1,4 +1,5 @@
 #include "./meascontrolwidget.h"
+#include <cstring>
 #include <qcustomplot.h>
 
 MeasureControlWindow::MeasureControlWindow(QWidget *parent) : QFrame(parent) {
@@ -119,7 +120,7 @@ void MeasureControlWindow::setupConnections() {
           &MeasureControlWindow::saveDataSlot);
 }
 
-void MeasureControlWindow::interpData(bool interp){
+void MeasureControlWindow::interpData(bool interp) {
   colorMap->setInterpolate(interp);
   customPlot->replot();
 }
@@ -175,25 +176,53 @@ void MeasureControlWindow::startMeasProc() {
 void MeasureControlWindow::recMeasPoint(double value) {
   measVals->at(i, j) = value;
   plotResults();
-
-  if (!(i == measVals->n() - 1 && j == measVals->m() - 1)) {
+  switch (j % 2) {
+  case 0:
     if (i == measVals->n() - 1) {
-      i = 0;
-      j++;
+      if (j + 1 < measVals->m()) {
+        j++;
+      } else {
+        emit requestStop();
+        return;
+      }
     } else {
       i++;
     }
-    emit requestNextStep(xCoords->at(i), yCoords->at(j));
-  } else {
-    emit requestStop();
+    break;
+
+  case 1:
+    if (i == 0) {
+      if (j + 1 < measVals->m()) {
+        j++;
+      } else {
+        emit requestStop();
+        return;
+      }
+    } else {
+      i--;
+    }
+    break;
   }
-  //  if (xCoords->size() > size_t(measVals->n())) {
-  //    emit requestNextStep(xCoords->at(measVals->size()));
-  //  } else {
-  //    emit requestStop();
-  //  }
+  emit this->requestNextStep(xCoords->at(i), yCoords->at(j));
+  // std::cout << "Next step, i:" << i << " j:" << j << std::endl;
 }
 
+// if (!(i == measVals->n() - 1 && j == measVals->m() - 1)) {
+//   if (i == measVals->n() - 1) {
+//     i = 0;
+//     j++;
+//   } else {
+//     i++;
+//   }
+//   emit requestNextStep(xCoords->at(i), yCoords->at(j));
+// } else {
+//   emit requestStop();
+// }
+// //  if (xCoords->size() > size_t(measVals->n())) {
+// //    emit requestNextStep(xCoords->at(measVals->size()));
+// //  } else {
+// //    emit requestStop();
+// //  }
 void MeasureControlWindow::plotResults() {
   colorMap->data()->setCell(i, j, measVals->at(i, j));
   colorMap->rescaleDataRange();
@@ -219,6 +248,18 @@ void MeasureControlWindow::resetZoomSlot() {
 }
 
 void MeasureControlWindow::saveDataSlot() {
+  std::ofstream dataFile;
+  dataFile.open(saveName->text().toStdString().c_str());
+  for (size_t ii = 0; ii < xCoords->size(); ii++) {
+    for (size_t jj = 0; jj < yCoords->size(); jj++) {
+      dataFile << xCoords->at(ii) << ",\t" << yCoords->at(jj) << ",\t"
+               << measVals->at(ii, jj) << "\n";
+    }
+  }
+  // for (int i = 0; i < points.size(); i++) {
+  //   dataFile << points.at(i).x() << ",\t" << points.at(i).y() << "\n";
+  // }
+  dataFile.close();
   // if (chart->series().isEmpty()) {
   //   return;
   // } else {

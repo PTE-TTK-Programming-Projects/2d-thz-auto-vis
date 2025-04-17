@@ -5,6 +5,8 @@ XYMotorSemaphore::XYMotorSemaphore(ZaberWindow *xWin, ZaberWindow *yWin)
     : QObject(nullptr) {
   this->xWin = xWin;
   this->yWin = yWin;
+  xPrev = -99;
+  yPrev = -99;
 }
 
 void XYMotorSemaphore::xStop() {
@@ -25,14 +27,16 @@ void XYMotorSemaphore::xStart() { xStatus = false; }
 void XYMotorSemaphore::yStart() { yStatus = false; }
 
 void XYMotorSemaphore::requestNextStep(double xPos, double yPos) {
-  // std::cout << "X: " << xPos << ", Y: " << yPos << std::endl;
+  if (xPrev == xPos && yPrev==yPos) {
+    emit allReady();
+  }
   if (xPrev != xPos) {
     xStatus = false;
     xPrev = xPos;
     xWin->moveToUnitPos(xPos);
   }
   if (yPrev != yPos) {
-    xStatus = false;
+    yStatus = false;
     yPrev = yPos;
     yWin->moveToUnitPos(yPos);
   }

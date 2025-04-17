@@ -6,7 +6,7 @@ TEMPLATE = app
 TARGET = thz-auto-vis
 INCLUDEPATH += . /opt/picoscope/include/libps5000a
 QT += widgets charts serialport
-LIBS += -lqcustomplot
+LIBS += -lQCustomPlot
 # LIBS += -L/opt/picoscope/lib -lps5000a -lpicoipp
 # CONFIG += debug # This is only needed when you want to attach a debugger
 

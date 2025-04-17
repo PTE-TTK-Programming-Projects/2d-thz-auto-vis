@@ -3,7 +3,7 @@
 #include <cmath>
 PicoScope::PicoScope() : QObject() {
   statusTimer = new QTimer;
-  statusTimer->setInterval(5);
+  statusTimer->setInterval(1);
   status = new PICO_STATUS;
   bufferLength = new int32_t(2001);
   noOfSamples = new uint32_t(2001);

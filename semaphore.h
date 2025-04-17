@@ -9,7 +9,7 @@ class XYMotorSemaphore : public QObject {
 private:
   bool xStatus = false, yStatus = false;
   ZaberWindow *xWin, *yWin;
-  double xPrev = -1, yPrev = -1;
+  double xPrev, yPrev;
 
 public:
   XYMotorSemaphore(ZaberWindow *xWin, ZaberWindow *yWin);

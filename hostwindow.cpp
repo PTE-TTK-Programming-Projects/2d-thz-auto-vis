@@ -18,8 +18,10 @@ HostWindow::HostWindow(QWidget *parent) : QWidget(parent) {
   instrumentPanel->setWindowFlags(Qt::Window | Qt::WindowMaximizeButtonHint);
   this->setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint);
   setLayout(layout);
-  connect(xZaberWin,&ZaberWindow::sendManualMsg, semaphore, &XYMotorSemaphore::xStart);
-  connect(yZaberWin,&ZaberWindow::sendManualMsg, semaphore,  &XYMotorSemaphore::yStart);
+  connect(xZaberWin, &ZaberWindow::sendManualMsg, semaphore,
+          &XYMotorSemaphore::xStart);
+  connect(yZaberWin, &ZaberWindow::sendManualMsg, semaphore,
+          &XYMotorSemaphore::yStart);
   connect(conWin, &MeasureControlWindow::unitSelectorIndex, xZaberWin,
           &ZaberWindow::externalUnitChange);
   connect(xZaberWin, &ZaberWindow::sendUnitIndex, conWin,
@@ -68,16 +70,17 @@ void HostWindow::start(double xPos, double yPos) {
             &MeasureControlWindow::recMeasPoint);
     connect(conWin, &MeasureControlWindow::requestNextStep, semaphore,
             &XYMotorSemaphore::requestNextStep);
-    xZaberWin->moveToUnitPos(xPos);
-    yZaberWin->moveToUnitPos(yPos);
+    //    xZaberWin->moveToUnitPos(xPos);
+    //    yZaberWin->moveToUnitPos(yPos);
+    emit semaphore->requestNextStep(xPos, yPos);
   }
 }
 
 void HostWindow::stop() {
   disconnect(semaphore, &XYMotorSemaphore::allReady, scopeWin,
-          &ScopeWindow::extMeasure);
+             &ScopeWindow::extMeasure);
   disconnect(scopeWin, &ScopeWindow::MEASUREMENT_TYPE, conWin,
-          &MeasureControlWindow::recMeasPoint);
+             &MeasureControlWindow::recMeasPoint);
   disconnect(conWin, &MeasureControlWindow::requestNextStep, semaphore,
-          &XYMotorSemaphore::requestNextStep);
+             &XYMotorSemaphore::requestNextStep);
 }
