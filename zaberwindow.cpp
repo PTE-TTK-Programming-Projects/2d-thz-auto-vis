@@ -1,5 +1,4 @@
 #include "./zaberwindow.h"
-bool contains(std::string base, std::string sub);
 
 ZaberWindow::ZaberWindow(QWidget *parent) : QFrame(parent) {
   unitMultiplier = new double(1e-3);
@@ -151,4 +150,3 @@ void ZaberWindow::stpBWD() {
 }
 
 void ZaberWindow::relayMotorReady() { emit motorReady(); }
-

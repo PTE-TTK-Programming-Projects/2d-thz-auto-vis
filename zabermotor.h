@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 
-#define VIRTUAL
+// #define VIRTUAL
 
 class ZaberDevice : public QSerialPort {
   Q_OBJECT;

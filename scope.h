@@ -4,7 +4,7 @@
 #include <ps5000aApi.h>
 #include <string>
 
-#define VIRTUAL
+//#define VIRTUAL
 
 class PicoScope : public QObject {
   Q_OBJECT;

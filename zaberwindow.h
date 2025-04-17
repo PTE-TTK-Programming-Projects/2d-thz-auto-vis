@@ -50,3 +50,7 @@ signals:
   void sendUnitIndex(int index);
   void motorReady();
 };
+
+inline bool contains(std::string base, std::string sub) {
+  return base.find(sub) != std::string::npos;
+} // buffer.find("/get device.id") != std::string::npos
