@@ -1,13 +1,14 @@
 #pragma once
 
-#include "./meascontrolwidget.h"
-#include "./scopewindow.h"
-#include "./zaberwindow.h"
 #include "semaphore.h"
 
 #ifndef MEASUREMENT_TYPE
 #define MEASUREMENT_TYPE sendAvg // sendAvg -> average; sendPtp -> peak-to-peak
 #endif
+
+class ScopeWindow;
+class ZaberWindow;
+class MeasureControlWindow;
 
 
 class HostWindow : public QWidget {

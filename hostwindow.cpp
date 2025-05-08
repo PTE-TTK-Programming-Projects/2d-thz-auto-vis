@@ -1,11 +1,13 @@
 #include "./hostwindow.h"
+#include "./meascontrolwidget.h"
+#include "./scopewindow.h"
 #include "semaphore.h"
 
 HostWindow::HostWindow(QWidget *parent) : QWidget(parent) {
   scopeWin = new ScopeWindow();
   xZaberWin = new ZaberWindow();
   yZaberWin = new ZaberWindow();
-  conWin = new MeasureControlWindow();
+  conWin = new MeasureControlWindow(this);
   instrumentPanel = new QFrame();
   semaphore = new XYMotorSemaphore(xZaberWin, yZaberWin);
   QHBoxLayout *instLayout = new QHBoxLayout();

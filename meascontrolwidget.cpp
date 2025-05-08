@@ -1,8 +1,14 @@
 #include "./meascontrolwidget.h"
+#include "./hostwindow.h"
+#include <climits>
 #include <cstring>
+#include <ctime>
+#include <limits.h>
 #include <qcustomplot.h>
+#include <unistd.h>
 
-MeasureControlWindow::MeasureControlWindow(QWidget *parent) : QFrame(parent) {
+MeasureControlWindow::MeasureControlWindow(HostWindow *host, QWidget *parent) : QFrame(parent) {
+  this->host = host;
   initDefaultValues();
   QVBoxLayout *layout = new QVBoxLayout();
   QVBoxLayout *xlayout = new QVBoxLayout();
@@ -250,6 +256,26 @@ void MeasureControlWindow::resetZoomSlot() {
 void MeasureControlWindow::saveDataSlot() {
   std::ofstream dataFile;
   dataFile.open(saveName->text().toStdString().c_str());
+  time_t timestamp;
+  char hostname[HOST_NAME_MAX];
+  char username[LOGIN_NAME_MAX];
+  gethostname(hostname, HOST_NAME_MAX);
+  getlogin_r(username, LOGIN_NAME_MAX);
+  time(&timestamp);
+
+  dataFile << "# Date:  " << ctime(&timestamp);
+  dataFile << "# Computer: " << username << "@" << hostname << '\n';
+  dataFile << "# Version: TODO" << '\n';
+  dataFile << "# X Axis Data: " << xCoords->at(0) << " "
+           << xCoords->at(1) - xCoords->at(0) << " "
+           << xCoords->at(xCoords->size()-1) << '\n';
+  dataFile << "# Y Axis Data: " << yCoords->at(0) << " "
+           << yCoords->at(1) - yCoords->at(0) << " "
+           << yCoords->at(yCoords->size()-1) << '\n';
+
+  dataFile << "# Coupling mode: TODO" << '\n';
+
+  // Végén az adat
   for (size_t ii = 0; ii < xCoords->size(); ii++) {
     for (size_t jj = 0; jj < yCoords->size(); jj++) {
       dataFile << xCoords->at(ii) << ",\t" << yCoords->at(jj) << ",\t"

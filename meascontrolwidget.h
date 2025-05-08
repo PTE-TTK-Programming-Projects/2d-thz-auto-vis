@@ -6,13 +6,16 @@
 #include <iostream>
 #include <qcustomplot.h>
 
+class HostWindow;
+
 class MeasureControlWindow : public QFrame {
   Q_OBJECT;
 
 public:
-  MeasureControlWindow(QWidget *parent = nullptr);
+  MeasureControlWindow(HostWindow *host, QWidget *parent = nullptr);
 
 private:
+  HostWindow *host;
   void initDefaultValues();
   void setupConnections();
   void hideEvent(QHideEvent *event);
